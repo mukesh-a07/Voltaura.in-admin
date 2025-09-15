@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltAura Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #1e3a8a;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fecaca;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .refresh-btn, .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover, .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.disconnected {
+            background: #f56565;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .dashboard-content {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .config-section {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .config-section h3 {
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .config-section input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 4px 0 8px 0;
+        }
+
+        .config-btn {
+            background: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .debug-info {
+            color: #ffffff;
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #6b7280;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #1e3a8a;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        /* Content Area */
+        .content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .new-entry {
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid #3b82f6;
+        }
+
+        /* Status and Priority Badges */
+        .status-badge, .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge:hover, .priority-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .status-new { background: #dbeafe; color: #1e3a8a; }
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+
+        .priority-high { background: #fecaca; color: #991b1b; }
+        .priority-medium { background: #fed7aa; color: #9a3412; }
+        .priority-low { background: #d1fae5; color: #065f46; }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+        }
+
+        .action-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #1e40af;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #1e3a8a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .admin-actions select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .admin-actions input {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .admin-actions button {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .connection-status.connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .connection-status.disconnected {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-content {
+                padding: 0 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-form">
+            <div class="login-header">
+                <h1><i class="fas fa-shield-alt"></i> VoltAura Admin</h1>
+                <p>Please sign in to access the admin dashboard</p>
+            </div>
+            
+            <div class="error-message" id="loginError"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            
+            <!-- <div style="margin-top: 1rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; font-size: 0.875rem;">
+                <strong>Default Credentials:</strong><br>
+                Username: <code>admin</code><br>
+                Password: <code>voltaura2025</code><br>
+                <em>Change these in your Google Apps Script!</em>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>VoltAura Admin Dashboard</span>
+                </div>
+                <div class="header-actions">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="connectionDot"></div>
+                        <span id="connectionText">Checking...</span>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshData()">
+                        <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                        Refresh
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                    <span style="font-size: 0.875rem;">Last updated: <span id="lastUpdated">Never</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Configuration -->
+            <div class="config-section">
+                <h3>Configuration</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label for="scriptUrl">Google Apps Script URL:</label>
+                    <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/AKfycbxFdlNYQ7LGAauVWCUGSsrLBooF1cOQ0u_WUy9Awby2Jhn6XrrQKAh8xy9QXaHfmzw/exec">
+                </div>
+                <button onclick="testConnection()" class="config-btn">Test Connection</button>
+                <div id="debugInfo" class="debug-info"></div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Quotes</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="totalQuotes">0</div>
+                    <div class="stat-label">Quote requests received</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">New Messages</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="newMessages">0</div>
+                    <div class="stat-label">Unread contact forms</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">This Week</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="weeklyQuotes">0</div>
+                    <div class="stat-label">New inquiries</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Response Rate</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number">98<span style="font-size: 1rem;">%</span></div>
+                    <div class="stat-label">Excellent performance</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('quotes')">
+                    <i class="fas fa-file-invoice"></i> Quote Requests
+                </button>
+                <button class="tab" onclick="switchTab('messages')">
+                    <i class="fas fa-envelope"></i> Contact Messages
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="content-header">
+                    <h2 class="content-title" id="contentTitle">Quote Requests</h2>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterData('all')">All</button>
+                        <button class="filter-btn" onclick="filterData('new')">New</button>
+                        <button class="filter-btn" onclick="filterData('in-progress')">In Progress</button>
+                        <button class="filter-btn" onclick="filterData('completed')">Completed</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div id="quotesTable">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading quote requests...
+                        </div>
+                    </div>
+
+                    <div id="messagesTable" style="display: none;">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading contact messages...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+            <div class="admin-actions">
+                <select id="statusSelect">
+                    <option value="new">New</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <select id="prioritySelect">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+                <input type="text" id="notesInput" placeholder="Add notes...">
+                <button class="btn-primary" onclick="updateStatus()">Update Status</button>
+                <button class="btn-primary" onclick="updatePriority()">Update Priority</button>
+                <button class="btn-primary" onclick="addNotes()">Add Notes</button>
+                <button class="btn-danger" onclick="deleteItem()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="connection-status disconnected" id="connectionStatus">
+        <i class="fas fa-wifi"></i> Not connected
+    </div>
+
+    <script>
+        // Configuration
+        let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFdlNYQ7LGAauVWCUGSsrLBooF1cOQ0u_WUy9Awby2Jhn6XrrQKAh8xy9QXaHfmzw/exec';
+        let isLoggedIn = false;
+        let authToken = '';
+        let currentTab = 'quotes';
+        let currentFilter = 'all';
+        let selectedItem = null;
+        let quotesData = [];
+        let messagesData = [];
+        let isConnected = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            checkAuthStatus();
+        });
+
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            const token = localStorage.getItem('voltaura_admin_token');
+            const loginTime = localStorage.getItem('voltaura_admin_login_time');
+            
+            // Check if token exists and is less than 24 hours old
+            if (token && loginTime) {
+                const timeDiff = Date.now() - parseInt(loginTime);
+                const hoursElapsed = timeDiff / (1000 * 60 * 60);
+                
+                if (hoursElapsed < 24) {
+                    isLoggedIn = true;
+                    authToken = token;
+                    showDashboard();
+                    return;
+                }
+            }
+            
+            showLogin();
+        }
+
+        // Show login screen
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            if (GOOGLE_SCRIPT_URL) {
+                testConnection();
+            }
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!GOOGLE_SCRIPT_URL) {
+                showError('Please configure your Google Apps Script URL first');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await makeRequest(`${GOOGLE_SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+                
+                if (response.status === 'success') {
+                    isLoggedIn = true;
+                    authToken = response.token;
+                    
+                    // Store login info
+                    localStorage.setItem('voltaura_admin_token', authToken);
+                    localStorage.setItem('voltaura_admin_login_time', Date.now().toString());
+                    
+                    showDashboard();
+                } else {
+                    showError(response.message || 'Login failed');
+                }
+            } catch (error) {
+                showError('Login failed: ' + error.message);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            }
+        });
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Logout
+        function logout() {
+            isLoggedIn = false;
+            authToken = '';
+            localStorage.removeItem('voltaura_admin_token');
+            localStorage.removeItem('voltaura_admin_login_time');
+            showLogin();
+        }
+
+        // Load configuration
+        function loadConfig() {
+            const savedUrl = localStorage.getItem('voltaura_dashboard_url');
+            if (savedUrl) {
+                document.getElementById('scriptUrl').value = savedUrl;
+                GOOGLE_SCRIPT_URL = savedUrl;
+            }
+        }
+
+        // Save configuration
+        function saveConfig() {
+            const url = document.getElementById('scriptUrl').value.trim();
+            if (url) {
+                GOOGLE_SCRIPT_URL = url;
+                localStorage.setItem('voltaura_dashboard_url', url);
+            }
+        }
+
+        // Make authenticated request
+        async function makeRequest(url, options = {}) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open(options.method || 'GET', url, true);
+                xhr.timeout = 10000;
+                
+                if (options.data) {
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                }
+                
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                resolve(response);
+                            } catch (e) {
+                                reject(new Error('Invalid JSON response'));
+                            }
+                        } else {
+                            reject(new Error(`HTTP ${xhr.status}`));
+                        }
+                    }
+                };
+                
+                xhr.onerror = () => reject(new Error('Network error'));
+                xhr.ontimeout = () => reject(new Error('Request timeout'));
+                
+                xhr.send(options.data ? JSON.stringify(options.data) : null);
+            });
+        }
+
+        // Test connection
+        async function testConnection() {
+            if (!isLoggedIn) return;
+            
+            const debugDiv = document.getElementById('debugInfo');
+            
+            saveConfig();
+            
+            if (!GOOGLE_SCRIPT_URL) {
+                setConnectionStatus(false, 'No URL configured');
+                return;
+            }
+            
+            debugDiv.style.display = 'block';
+            debugDiv.innerHTML = 'Testing connection to: ' + GOOGLE_SCRIPT_URL + '\n';
+            
+            setConnectionStatus(false, 'Testing...');
+            
+            try {
+                const response = await makeRequest(GOOGLE_SCRIPT_URL + '?action=test');
+                debugDiv.innerHTML += 'Response: ' + JSON.stringify(response, null, 2) + '\n';
+                
+                if (response.status === 'success') {
+                    setConnectionStatus(true, 'Connected');
+                    loadAllData();
+                } else {
+                    setConnectionStatus(false, 'API Error: ' + response.message);
+                }
+            } catch (error) {
+                debugDiv.innerHTML += 'Error: ' + error.message + '\n';
+                setConnectionStatus(false, 'Connection failed');
+            }
+        }
+
+        // Load all data
+        async function loadAllData() {
+            if (!GOOGLE_SCRIPT_URL || !isConnected || !isLoggedIn) return;
+            
+            try {
+                await Promise.all([
+                    loadQuotes(),
+                    loadMessages(),
+                    loadStats()
+                ]);
+                
+                updateLastUpdated();
+                displayCurrentTab();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showNotification('Error loading data: ' + error.message, 'error');
+            }
+        }
+
+        // Load quotes
+        async function loadQuotes() {
+            const response = await makeRequest(GOOGLE_SCRIPT_URL + '?action=getQuotes');
+            if (response.status === 'success') {
+                quotesData = response.data || [];
+                console.log('Quotes loaded:', quotesData.length);
+            } else {
+                throw new Error('Failed to load quotes: ' + response.message);
+            }
+        }
+
+        // Load messages
+        async function loadMessages() {
+            const response = await makeRequest(GOOGLE_SCRIPT_URL + '?action=getMessages');
+            if (response.status === 'success') {
+                messagesData = response.data || [];
+                console.log('Messages loaded:', messagesData.length);
+            } else {
+                throw new Error('Failed to load messages: ' + response.message);
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            const response = await makeRequest(GOOGLE_SCRIPT_URL + '?action=getStats');
+            if (response.status === 'success') {
+                updateStats(response.data);
+            } else {
+                throw new Error('Failed to load stats: ' + response.message);
+            }
+        }
+
+        // Update statistics display
+        function updateStats(stats) {
+            document.getElementById('totalQuotes').textContent = stats.totalQuotes || 0;
+            document.getElementById('newMessages').textContent = stats.newMessages || 0;
+            document.getElementById('weeklyQuotes').textContent = stats.weeklyCount || 0;
+        }
+
+        // Display current tab
+        function displayCurrentTab() {
+            if (currentTab === 'quotes') {
+                displayQuotesTable();
+            } else {
+                displayMessagesTable();
+            }
+        }
+
+        // Display quotes table
+        function displayQuotesTable() {
+            const container = document.getElementById('quotesTable');
+            let filteredQuotes = quotesData;
+            
+            if (currentFilter !== 'all') {
+                filteredQuotes = quotesData.filter(q => q.status === currentFilter);
+            }
+            
+            if (filteredQuotes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-invoice"></i>
+                        <h3>No quote requests found</h3>
+                        <p>No quote requests match the current filter.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                            <th>Services</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredQuotes.map(quote => `
+                            <tr>
+                                <td><strong>${quote.id || 'N/A'}</strong></td>
+                                <td>
+                                    <div><strong>${quote.name || 'N/A'}</strong></div>
+                                    <div style="font-size: 0.875rem; color: #6b7280;">${quote.email || ''}</div>
+                                </td>
+                                <td>${quote.services || 'N/A'}</td>
+                                <td>
+                                    <span class="status-badge status-${quote.status || 'new'}" onclick="quickUpdateStatus('${quote.id}', 'quote', '${quote.status || 'new'}')">
+                                        ${quote.status || 'new'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="priority-badge priority-${quote.priority || 'medium'}" onclick="quickUpdatePriority('${quote.id}', 'quote', '${quote.priority || 'medium'}')">
+                                        ${quote.priority || 'medium'}
+                                    </span>
+                                </td>
+                                <td>${formatDate(quote.timestamp)}</td>
+                                <td>
+                                    <button class="action-btn btn-primary" onclick="viewDetails('${quote.id}', 'quote')">View</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Display messages table
+        function displayMessagesTable() {
+            const container = document.getElementById('messagesTable');
+            let filteredMessages = messagesData;
+            
+            if (currentFilter !== 'all') {
+                filteredMessages = messagesData.filter(m => m.status === currentFilter);
+            }
+            
+            if (filteredMessages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-envelope"></i>
+                        <h3>No contact messages found</h3>
+                        <p>No contact messages match the current filter.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredMessages.map(msg => `
+                            <tr>
+                                <td><strong>${msg.id || 'N/A'}</strong></td>
+                                <td>
+                                    <div><strong>${msg.name || 'N/A'}</strong></div>
+                                    <div style="font-size: 0.875rem; color: #6b7280;">${msg.email || ''}</div>
+                                </td>
+                                <td>${msg.service || 'General Inquiry'}</td>
+                                <td>
+                                    <span class="status-badge status-${msg.status || 'new'}" onclick="quickUpdateStatus('${msg.id}', 'message', '${msg.status || 'new'}')">
+                                        ${msg.status || 'new'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="priority-badge priority-${msg.priority || 'medium'}" onclick="quickUpdatePriority('${msg.id}', 'message', '${msg.priority || 'medium'}')">
+                                        ${msg.priority || 'medium'}
+                                    </span>
+                                </td>
+                                <td>${formatDate(msg.timestamp)}</td>
+                                <td>
+                                    <button class="action-btn btn-primary" onclick="viewDetails('${msg.id}', 'message')">View</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Quick update status
+        async function quickUpdateStatus(id, type, currentStatus) {
+            const statuses = ['new', 'in-progress', 'completed'];
+            const currentIndex = statuses.indexOf(currentStatus);
+            const nextStatus = statuses[(currentIndex + 1) % statuses.length];
+            
+            try {
+                await updateItemInDatabase('updateStatus', {
+                    id: id,
+                    type: type,
+                    newStatus: nextStatus
+                });
+                
+                showNotification(`Status updated to ${nextStatus}`, 'success');
+                await loadAllData();
+            } catch (error) {
+                showNotification('Failed to update status: ' + error.message, 'error');
+            }
+        }
+
+        // Quick update priority
+        async function quickUpdatePriority(id, type, currentPriority) {
+            const priorities = ['low', 'medium', 'high'];
+            const currentIndex = priorities.indexOf(currentPriority);
+            const nextPriority = priorities[(currentIndex + 1) % priorities.length];
+            
+            try {
+                await updateItemInDatabase('updatePriority', {
+                    id: id,
+                    type: type,
+                    newPriority: nextPriority
+                });
+                
+                showNotification(`Priority updated to ${nextPriority}`, 'success');
+                await loadAllData();
+            } catch (error) {
+                showNotification('Failed to update priority: ' + error.message, 'error');
+            }
+        }
+
+        // Update item in database
+        async function updateItemInDatabase(action, data) {
+            if (!isLoggedIn) {
+                throw new Error('Not authenticated');
+            }
+            
+            const response = await makeRequest(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                data: { action: action, ...data }
+            });
+            
+            if (response.status !== 'success') {
+                throw new Error(response.message || 'Update failed');
+            }
+            
+            return response;
+        }
+
+        // View details modal
+        function viewDetails(id, type) {
+            const item = type === 'quote' ? 
+                quotesData.find(q => q.id === id) : 
+                messagesData.find(m => m.id === id);
+            
+            if (!item) return;
+            
+            selectedItem = { ...item, type: type };
+            const modal = document.getElementById('detailModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalTitle.textContent = type === 'quote' ? `Quote Request ${id}` : `Contact Message ${id}`;
+            
+            const details = Object.entries(item)
+                .filter(([key]) => key !== 'type')
+                .map(([key, value]) => 
+                    `<div style="margin-bottom: 1rem;"><strong>${key}:</strong> ${value || 'N/A'}</div>`
+                ).join('');
+            
+            modalBody.innerHTML = details;
+            
+            // Set current values in selects
+            document.getElementById('statusSelect').value = item.status || 'new';
+            document.getElementById('prioritySelect').value = item.priority || 'medium';
+            document.getElementById('notesInput').value = '';
+            
+            modal.style.display = 'block';
+        }
+
+        // Update status
+        async function updateStatus() {
+            if (!selectedItem) return;
+            
+            const newStatus = document.getElementById('statusSelect').value;
+            
+            try {
+                await updateItemInDatabase('updateStatus', {
+                    id: selectedItem.id,
+                    type: selectedItem.type,
+                    newStatus: newStatus
+                });
+                
+                showNotification(`Status updated to ${newStatus}`, 'success');
+                closeModal();
+                await loadAllData();
+            } catch (error) {
+                showNotification('Failed to update status: ' + error.message, 'error');
+            }
+        }
+
+        // Update priority
+        async function updatePriority() {
+            if (!selectedItem) return;
+            
+            const newPriority = document.getElementById('prioritySelect').value;
+            
+            try {
+                await updateItemInDatabase('updatePriority', {
+                    id: selectedItem.id,
+                    type: selectedItem.type,
+                    newPriority: newPriority
+                });
+                
+                showNotification(`Priority updated to ${newPriority}`, 'success');
+                closeModal();
+                await loadAllData();
+            } catch (error) {
+                showNotification('Failed to update priority: ' + error.message, 'error');
+            }
+        }
+
+        // Add notes
+        async function addNotes() {
+            if (!selectedItem) return;
+            
+            const notes = document.getElementById('notesInput').value.trim();
+            if (!notes) {
+                showNotification('Please enter notes', 'error');
+                return;
+            }
+            
+            try {
+                await updateItemInDatabase('addNotes', {
+                    id: selectedItem.id,
+                    type: selectedItem.type,
+                    notes: notes
+                });
+                
+                showNotification('Notes added successfully', 'success');
+                document.getElementById('notesInput').value = '';
+                await loadAllData();
+            } catch (error) {
+                showNotification('Failed to add notes: ' + error.message, 'error');
+            }
+        }
+
+        // Delete item
+        async function deleteItem() {
+            if (!selectedItem) return;
+            
+            if (!confirm(`Are you sure you want to delete ${selectedItem.type} ${selectedItem.id}? This cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                await updateItemInDatabase('deleteItem', {
+                    id: selectedItem.id,
+                    type: selectedItem.type
+                });
+                
+                showNotification('Item deleted successfully', 'success');
+                closeModal();
+                await loadAllData();
+            } catch (error) {
+                showNotification('Failed to delete item: ' + error.message, 'error');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+            selectedItem = null;
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'quotes') {
+                document.getElementById('contentTitle').textContent = 'Quote Requests';
+                document.getElementById('quotesTable').style.display = 'block';
+                document.getElementById('messagesTable').style.display = 'none';
+                displayQuotesTable();
+            } else {
+                document.getElementById('contentTitle').textContent = 'Contact Messages';
+                document.getElementById('quotesTable').style.display = 'none';
+                document.getElementById('messagesTable').style.display = 'block';
+                displayMessagesTable();
+            }
+        }
+
+        // Filter data
+        function filterData(filter) {
+            currentFilter = filter;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayCurrentTab();
+        }
+
+        // Refresh data
+        async function refreshData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.style.animation = 'spin 1s linear infinite';
+            
+            try {
+                await loadAllData();
+                showNotification('Dashboard refreshed successfully', 'success');
+            } catch (error) {
+                console.error('Refresh failed:', error);
+                showNotification('Failed to refresh data', 'error');
+            } finally {
+                refreshIcon.style.animation = '';
+            }
+        }
+
+        // Set connection status
+        function setConnectionStatus(connected, message = '') {
+            isConnected = connected;
+            const connectionDot = document.getElementById('connectionDot');
+            const connectionText = document.getElementById('connectionText');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            if (connected) {
+                connectionDot.classList.remove('disconnected');
+                connectionText.textContent = 'Connected';
+                connectionStatus.className = 'connection-status connected';
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i> Admin connected';
+            } else {
+                connectionDot.classList.add('disconnected');
+                connectionText.textContent = message || 'Disconnected';
+                connectionStatus.className = 'connection-status disconnected';
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i> ' + (message || 'Connection lost');
+            }
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#f56565' : '#1e3a8a'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                z-index: 10000;
+                max-width: 300px;
+                font-size: 0.9rem;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Save URL when it changes
+        document.getElementById('scriptUrl').addEventListener('change', function() {
+            saveConfig();
+        });
+
+        console.log('VoltAura Admin Dashboard loaded successfully!');
+    </script>
+</body>
+</html>
